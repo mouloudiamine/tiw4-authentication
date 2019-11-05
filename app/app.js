@@ -13,6 +13,10 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+// desactiver l'entete x-powered-by
+// bon pratiques express
+app.disable('x-powered-by');
+
 // see https://www.npmjs.com/package/morgan
 app.use(morgan('dev'));
 
