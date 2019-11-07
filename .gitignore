@@ -3,6 +3,7 @@
 *.back
 CORRECTION.md
 server-gold/
+.idea/
 
 # environment file
 .env
