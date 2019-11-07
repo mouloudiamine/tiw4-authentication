@@ -1,39 +1,66 @@
 const jwt = require('jsonwebtoken');
+
 const debug = require('debug')('app:authenticate');
 const createError = require('http-errors');
 const db = require('../models/queries');
 
-const jwtServerKey = process.env.SECRET_KEY || 'secretpassword';
-const jwtExpirySeconds = 60;
+// jwt and refresh token secret keys
+// the keys must have a size > used algorithm size
+const jwtTokenSecret = process.env.SECRET_KEY || 'secretpassword';
+const refreshTokenSecret = process.env.REFRESH_SECRET || 'refreshsecretpassword';
+
+// JWT expiry time and refresh Token expiry time
+const jwtExpirySeconds = 900; // 5 min
+const refreshTokenLifetime = 24 * 60 * 60; // 24h
+
+// TODO : delete later or change it to database
+const refreshTokenList = {};
 
 // call postgres to verify request's information
 // if OK, creates a jwt and stores it in a cookie, 401 otherwise
 async function authenticateUser(req, res, next) {
   const { login } = req.body;
   const pwd = req.body.password;
+  const userAgent = req.headers['user-agent'];
 
   debug(`authenticate_user(): attempt from "${login}" with password "${pwd}"`);
+  debug(`user agent is : ${userAgent}`);
   try {
     const ok = await db.checkUser(login, pwd);
 
     if (!ok) next(createError(401, 'Invalid login/password'));
     else {
-      // inspiration from https://www.sohamkamani.com/blog/javascript/2019-03-29-node-jwt-authentication/
-      const payload = {
-        sub: login
-        // fiels 'iat' and 'exp' are automatically filled from  the expiresIn parameter
-      };
-
-      const header = {
+      // Create a new token
+      const token = jwt.sign({ sub: login }, jwtTokenSecret, {
         algorithm: 'HS256',
         expiresIn: jwtExpirySeconds
-      };
+      });
+      // Create a new refreshToken
+      const refreshToken = jwt.sign(
+        { sub: login, agent: userAgent },
+        refreshTokenSecret,
+        { algorithm: 'HS256', expiresIn: refreshTokenLifetime }
+      );
 
-      // Create a new token
-      const token = jwt.sign(payload, jwtServerKey, header);
       // Add the jwt into a cookie for further reuse
       // see https://www.npmjs.com/package/cookie
-      res.cookie('token', token, { maxAge: jwtExpirySeconds * 1000 * 2 });
+      res.cookie('token', token, {
+        // secure: true,
+        sameSite: true,
+        httpOnly: true,
+        maxAge: jwtExpirySeconds * 1000 * 2
+      });
+
+      // Add refresh token to the cookie
+      res.cookie('refreshToken', refreshToken, {
+        // secure: true,
+        sameSite: true,
+        httpOnly: true,
+        maxAge: refreshTokenLifetime * 1000 * 2
+      });
+
+      // TODO : store refresh token in database (Redis maybe)
+      refreshTokenList[refreshToken] = refreshToken;
 
       debug(`authenticate_user(): "${login}" logged in ("${token}")`);
       next();
@@ -55,7 +82,7 @@ function checkUser(req, _res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, jwtServerKey);
+    const payload = jwt.verify(token, jwtTokenSecret);
 
     if (!payload.sub) next(createError(403, 'User not authorized'));
 
@@ -77,4 +104,50 @@ function checkUser(req, _res, next) {
   }
 }
 
-module.exports = { checkUser, authenticateUser };
+// checks if refreshToken is present and valid.
+// if it is, create new access token
+// else the user need to login again
+function renewToken(req, res, next) {
+  const { refreshToken } = req.cookies;
+
+  debug(`renew_token(): checking refresh token before renewing jwt`);
+
+  if (!refreshToken) {
+    debug(`renew_token(): no refresh token found!`);
+    next();
+  }
+
+  if (!refreshTokenList[refreshToken]) {
+    debug(
+      `renew_token(): suspecious refresh token (refresh token not found in database)!`
+    );
+    next();
+  }
+
+  // verify integrity of refresh token
+  const refreshPayload = jwt.verify(refreshToken, refreshTokenSecret);
+
+  // verify user agent
+  if (refreshPayload.agent !== req.headers['user-agent']) {
+    debug(
+      `renew_token(): user ${refreshPayload.sub} is not using the same machine, you should notify him`
+    );
+  }
+
+  // generate new acces token
+  const newToken = jwt.sign({ sub: refreshPayload.sub }, jwtTokenSecret, {
+    algorithm: 'HS256',
+    expiresIn: jwtExpirySeconds
+  });
+
+  // update cookie
+  res.cookie('token', newToken, {
+    sameSite: true,
+    httpOnly: true,
+    maxAge: jwtExpirySeconds * 1000 * 2
+  });
+
+  next();
+}
+
+module.exports = { checkUser, authenticateUser, renewToken };
