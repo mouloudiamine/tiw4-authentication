@@ -163,7 +163,7 @@ function renewToken(req, res, next) {
 }
 
 // logout the user and add refresh token to blacklist
-function blacklistToken(req, _res, next) {
+function blacklistToken(req, res, next) {
   const { refreshToken } = req.cookies;
 
   if (!refreshToken) {
@@ -181,6 +181,10 @@ function blacklistToken(req, _res, next) {
 
   // add refresh token to blacklist
   client.set(refreshToken, refreshToken, 'EX', expiration);
+
+  // destroy the token and the cookie
+  // https://stackoverflow.com/questions/27978868/destroy-cookie-nodejs
+  res.cookie('token', jwt.sign({}, 'expired'), { maxAge: Date.now() });
 
   next();
 }
