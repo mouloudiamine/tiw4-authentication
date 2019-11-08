@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const sha = require('js-sha512');
 const redis = require('redis');
 const bluebird = require('bluebird');
 const debug = require('debug')('app:authenticate');
@@ -189,4 +190,21 @@ function blacklistToken(req, res, next) {
   next();
 }
 
-module.exports = { checkUser, authenticateUser, renewToken, blacklistToken };
+// check if user email exists
+// if it is, generate password reset token and send it to user
+function checkEmail(req, _res, next) {
+  // recuperer le mail
+  const {email} = req.body;
+  debug(`user email ${email}`);
+
+  // verify that email exists
+  // generate 24h token for password reset
+  req.token = jwt.sign(
+      {token: sha.create()},
+      'secretpassword',
+      {expiresIn: 24*60*60});
+  // send page by email
+  next();
+}
+
+module.exports = { checkUser, authenticateUser, renewToken, blacklistToken, checkEmail };
