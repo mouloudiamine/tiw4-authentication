@@ -1,8 +1,16 @@
 const jwt = require('jsonwebtoken');
-
+const redis = require('redis');
+const bluebird = require('bluebird');
 const debug = require('debug')('app:authenticate');
 const createError = require('http-errors');
 const db = require('../models/queries');
+
+bluebird.promisifyAll(redis);
+
+// client for redis database
+const host = process.env.REDIS_HOST || '127.0.0.1';
+const port = process.env.REDIS_PASS || 6379;
+const client = redis.createClient(port, host);
 
 // jwt and refresh token secret keys
 // the keys must have a size > used algorithm size
@@ -10,11 +18,8 @@ const jwtTokenSecret = process.env.SECRET_KEY || 'secretpassword';
 const refreshTokenSecret = process.env.REFRESH_SECRET || 'refreshsecretpassword';
 
 // JWT expiry time and refresh Token expiry time
-const jwtExpirySeconds = 900; // 5 min
+const jwtExpirySeconds = 60; // 1 min
 const refreshTokenLifetime = 24 * 60 * 60; // 24h
-
-// TODO : delete later or change it to database
-const refreshTokenList = {};
 
 // call postgres to verify request's information
 // if OK, creates a jwt and stores it in a cookie, 401 otherwise
@@ -60,7 +65,8 @@ async function authenticateUser(req, res, next) {
       });
 
       // TODO : store refresh token in database (Redis maybe)
-      refreshTokenList[refreshToken] = refreshToken;
+      // refreshTokenList[refreshToken] = refreshToken;
+
 
       debug(`authenticate_user(): "${login}" logged in ("${token}")`);
       next();
@@ -108,7 +114,7 @@ function checkUser(req, _res, next) {
 // if it is, create new access token
 // else the user need to login again
 function renewToken(req, res, next) {
-  const { refreshToken } = req.cookies;
+  const { refreshToken, token } = req.cookies;
 
   debug(`renew_token(): checking refresh token before renewing jwt`);
 
@@ -117,37 +123,66 @@ function renewToken(req, res, next) {
     next();
   }
 
-  if (!refreshTokenList[refreshToken]) {
-    debug(
-      `renew_token(): suspecious refresh token (refresh token not found in database)!`
-    );
+  // check if refresh token is blacklisted
+  // if it is, we don't generate new token
+  client.get(refreshToken, (err, ret) => {
+    if(ret) {
+      debug(`renew_token(): refresh token ${ret} is blacklisted `);
+    } else {
+      debug(`renew_token(): generate new token with the provided refresh token ${refreshToken}`);
+      // verify integrity of refresh token
+      const refreshPayload = jwt.verify(refreshToken, refreshTokenSecret);
+
+      // verify user agent
+      if (refreshPayload.agent !== req.headers['user-agent']) {
+        debug(`renew_token(): user ${refreshPayload.sub} is not using the same machine, you should notify him`);
+      }
+
+      // verify that the token expires soon or already expired before generating new one*
+      // if not, no token is generated
+      const payload = jwt.verify(refreshToken, refreshTokenSecret, {ignoreExpiration: true});
+      const nowUnixSeconds = Math.round(Number(new Date()) / 1000);
+
+      if(payload && payload.exp && (payload.exp - nowUnixSeconds) > 30) {
+          // generate new acces token
+          const newToken = jwt.sign({ sub: refreshPayload.sub }, jwtTokenSecret, {
+            algorithm: 'HS256',
+            expiresIn: jwtExpirySeconds
+          });
+
+          // update cookie
+          res.cookie('token', newToken, {
+            sameSite: true,
+            httpOnly: true,
+            maxAge: jwtExpirySeconds * 1000 * 2
+          });
+      }
+    }
     next();
+  });
+}
+
+// logout the user and add refresh token to blacklist
+function blacklistToken(req, _res, next) {
+  const { refreshToken } = req.cookies;
+
+  if (!refreshToken) {
+    next(createError(401, 'No JWT provided'));
   }
 
-  // verify integrity of refresh token
   const refreshPayload = jwt.verify(refreshToken, refreshTokenSecret);
 
-  // verify user agent
-  if (refreshPayload.agent !== req.headers['user-agent']) {
-    debug(
-      `renew_token(): user ${refreshPayload.sub} is not using the same machine, you should notify him`
-    );
+  if (!refreshPayload) {
+    next(createError(401, 'Invalid refresh token'));
   }
 
-  // generate new acces token
-  const newToken = jwt.sign({ sub: refreshPayload.sub }, jwtTokenSecret, {
-    algorithm: 'HS256',
-    expiresIn: jwtExpirySeconds
-  });
+  const nowUnixSeconds = Math.round(Number(new Date()) / 1000);
+  const expiration = refreshPayload.exp - nowUnixSeconds;
 
-  // update cookie
-  res.cookie('token', newToken, {
-    sameSite: true,
-    httpOnly: true,
-    maxAge: jwtExpirySeconds * 1000 * 2
-  });
+  // add refresh token to blacklist
+  client.set(refreshToken, refreshToken, 'EX', expiration);
 
   next();
 }
 
-module.exports = { checkUser, authenticateUser, renewToken };
+module.exports = { checkUser, authenticateUser, renewToken, blacklistToken };
