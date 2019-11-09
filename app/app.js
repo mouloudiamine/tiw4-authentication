@@ -38,14 +38,12 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const loginRouter = require('./routes/login');
 const signupRouter = require('./routes/signup');
-const confirmMail = require('./routes/confirmMail');
 const restrictedRouter = require('./routes/restricted');
 
 app.use('/', indexRouter);
 app.use('/login', loginRouter);
 app.use('/users', usersRouter);
 app.use('/signup', signupRouter);
-app.use('/confirm',confirmMail);
 app.use('/restricted', restrictedRouter);
 
 app.use(function notFoundHandler(req, res, next) {
