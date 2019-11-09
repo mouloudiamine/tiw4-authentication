@@ -64,11 +64,6 @@ async function authenticateUser(req, res, next) {
         httpOnly: true,
         maxAge: refreshTokenLifetime * 1000 * 2
       });
-
-      // TODO : store refresh token in database (Redis maybe)
-      // refreshTokenList[refreshToken] = refreshToken;
-
-
       debug(`authenticate_user(): "${login}" logged in ("${token}")`);
       next();
     }
@@ -80,18 +75,22 @@ async function authenticateUser(req, res, next) {
 // checks if jwt is present and pertains to some user.
 // stores the value in req.user
 // eslint-disable-next-line consistent-return
-function checkUser(req, _res, next) {
+function checkUser(req, res, next) {
   const { token } = req.cookies;
   debug(`check_user(): checking token "${token}"`);
 
   if (!token) {
-    return next(createError(401, 'No JWT provided'));
+    return res.redirect('/login');
+    // return next(createError(401, 'No JWT provided'));
   }
 
   try {
     const payload = jwt.verify(token, jwtTokenSecret);
 
-    if (!payload.sub) next(createError(403, 'User not authorized'));
+    if (!payload.sub) {
+      return res.redirect('/login');
+      // next(createError(403, 'User not authorized'));
+    }
 
     debug(`check_user(): "${payload.sub}" authorized`);
     req.user = payload.sub;
@@ -200,11 +199,22 @@ function checkEmail(req, _res, next) {
   // verify that email exists
   // generate 24h token for password reset
   req.token = jwt.sign(
-      {token: sha.create()},
-      'secretpassword',
+      {ident: email},
+      jwtTokenSecret,
       {expiresIn: 24*60*60});
   // send page by email
   next();
 }
 
-module.exports = { checkUser, authenticateUser, renewToken, blacklistToken, checkEmail };
+// check reset Token
+function checkToken(req, _res, next) {
+  const { token } = req.query;
+
+  // verify token
+  const payload = jwt.verify(token, jwtTokenSecret);
+  debug(`email : ${payload.ident}`);
+
+  next();
+}
+
+module.exports = { checkUser, authenticateUser, renewToken, blacklistToken, checkEmail, checkToken };
