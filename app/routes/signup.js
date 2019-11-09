@@ -1,4 +1,6 @@
 const express = require('express');
+const { sha512 } = require('js-sha512');
+const bcrypt = require('bcryptjs');
 const createError = require('http-errors');
 const db = require('../models/queries');
 
@@ -10,7 +12,12 @@ router.get('/', function signupHandler(_req, res, _next) {
 
 router.post('/', async function signupHandler(req, res, next) {
   try {
-    await db.addUser(req.body.username, req.body.email, req.body.password);
+    // const salt = bcrypt.genSaltSync(10);
+    const salt = 10;
+    const hashedPass = sha512(req.body.password);
+    const encrptedPass = bcrypt.hashSync(hashedPass, salt);
+
+    await db.addUser(req.body.username, req.body.email, encrptedPass);
     res.redirect('/');
   } catch (e) {
     next(createError(500, e));

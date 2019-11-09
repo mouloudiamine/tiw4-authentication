@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const sha = require('js-sha512');
+const bcrypt = require('bcryptjs');
 const redis = require('redis');
 const bluebird = require('bluebird');
 const debug = require('debug')('app:authenticate');
@@ -26,13 +27,26 @@ const refreshTokenLifetime = 24 * 60 * 60; // 24h
 // if OK, creates a jwt and stores it in a cookie, 401 otherwise
 async function authenticateUser(req, res, next) {
   const { login } = req.body;
-  const pwd = req.body.password;
+  const pwd = sha(req.body.password);
   const userAgent = req.headers['user-agent'];
 
   debug(`authenticate_user(): attempt from "${login}" with password "${pwd}"`);
   debug(`user agent is : ${userAgent}`);
   try {
-    const ok = await db.checkUser(login, pwd);
+
+    const passwordJsonFromDB = JSON.stringify(await db.getPasswordByUsername(login));
+    debug(`password json from db : ${passwordJsonFromDB}`);
+    if (!passwordJsonFromDB) {
+      next(createError(401, 'Invalid login/password'));
+      return;
+    }
+
+    const passwordFromDB = JSON.parse(passwordJsonFromDB).password;
+    const ok = bcrypt.compareSync(pwd, passwordFromDB);
+    debug(`password from db : ${passwordFromDB}`);
+    debug(`pwd : ${pwd}`);
+    debug(` ok : ${ok}`);
+    // const ok = await db.checkUser(login, pwd);
 
     if (!ok) next(createError(401, 'Invalid login/password'));
     else {
@@ -114,7 +128,7 @@ function checkUser(req, res, next) {
 // if it is, create new access token
 // else the user need to login again
 function renewToken(req, res, next) {
-  const { refreshToken, token } = req.cookies;
+  const { refreshToken} = req.cookies;
 
   debug(`renew_token(): checking refresh token before renewing jwt`);
 

@@ -37,4 +37,12 @@ async function checkUser(login, pwd) {
   return result.rowCount === 1;
 }
 
-module.exports = { getUsers, checkUser, addUser };
+async function getPasswordByUsername(username) {
+  const result = await pool.query(
+      'SELECT password FROM users WHERE Username=$1; ',
+      [username]
+  );
+  return result.rows[0];
+}
+
+module.exports = { getUsers, checkUser, addUser, getPasswordByUsername};
