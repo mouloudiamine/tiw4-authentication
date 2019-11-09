@@ -4,18 +4,19 @@ const createError = require('http-errors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const morgan = require('morgan');
+const bodyP = require("body-parser");
 
 // read environnement variable in the ./.env file
 require('dotenv').config();
+
 
 const app = express();
 // use the https://pugjs.org/  view engine.
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-// desactiver l'entete x-powered-by
-// bon pratiques express
-app.disable('x-powered-by');
+//use body-parser
+app.use(bodyP.json({type:"application/json"}));
 
 // see https://www.npmjs.com/package/morgan
 app.use(morgan('dev'));
@@ -37,18 +38,15 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const loginRouter = require('./routes/login');
 const signupRouter = require('./routes/signup');
+const confirmMail = require('./routes/confirmMail');
 const restrictedRouter = require('./routes/restricted');
-const refreshRouter = require('./routes/renew');
-const logoutRouter = require('./routes/logout');
-
 
 app.use('/', indexRouter);
 app.use('/login', loginRouter);
 app.use('/users', usersRouter);
 app.use('/signup', signupRouter);
-app.use('/refresh', refreshRouter);
+app.use('/confirm',confirmMail);
 app.use('/restricted', restrictedRouter);
-app.use('/logout', logoutRouter);
 
 app.use(function notFoundHandler(req, res, next) {
   debug(`handler 404: ${req.baseUrl}`);

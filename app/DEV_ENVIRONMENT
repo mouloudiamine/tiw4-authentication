@@ -3,6 +3,7 @@ DB_PORT=5432
 DB_USER=tiw4-auth
 DB_PASS=tiw4-auth
 DB_DATABASE=tiw4-auth
+set DEBUG=app
 
-PORT=3000
+PORT=3001
 NODE_ENV=development
