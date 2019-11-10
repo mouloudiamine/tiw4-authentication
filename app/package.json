@@ -13,7 +13,6 @@
     "node": ">=10.0.0"
   },
   "dependencies": {
-    "bcrypt": "^3.0.6",
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.7.1",
     "body-parser": "^1.19.0",
@@ -25,12 +24,14 @@
     "js-sha512": "^0.8.0",
     "jsonwebtoken": "^8.5.1",
     "morgan": "~1.9.1",
-    "node-fetch": "^2.6.0",
-    "nodemon": "^1.19.3",
+    "node-fetch": "latest",
+    "nodemailer": "latest",
     "pg": "^7.12.1",
     "pug": "^2.0.4",
+    "querystring": "^0.2.0",
     "redis": "^2.8.0",
-    "sha256": "^0.2.0"
+    "request": "^2.88.0",
+    "xoauth2": "^1.2.0"
   },
   "devDependencies": {
     "eslint": "^6.5.1",
