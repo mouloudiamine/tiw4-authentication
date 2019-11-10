@@ -2,18 +2,26 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a9e608e4-8ec7-4dcd-b7da-990d3d38ee98" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/tiw4-authentication.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/.idea/app.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/DEV_ENVIRONMENT" beforeDir="false" afterPath="$PROJECT_DIR$/app/DEV_ENVIRONMENT" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/queries.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/queries.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routes/authenticate.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/authenticate.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routes/forget.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/forget.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routes/logout.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/logout.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routes/reset.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/reset.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routes/signup.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/signup.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/email.pug" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/email.pug" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/error.pug" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/error.pug" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/forget.pug" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/forget.pug" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/includes/footer.pug" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/includes/footer.pug" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/index.pug" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/index.pug" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/login.pug" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/login.pug" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/reset.pug" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/reset.pug" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/restricted.pug" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/restricted.pug" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/signup.pug" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/signup.pug" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/users.pug" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/users.pug" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -21,8 +29,14 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="CodeStyleSettingsInfer">
+    <option name="done" value="true" />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="1" />
   </component>
   <component name="ProjectId" id="1Ry3cLCLEY77kSE6OlsnBDTZnAY" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -30,6 +44,7 @@
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RunDashboard">
@@ -55,6 +70,7 @@
       <option name="presentableId" value="Default" />
       <updated>1570625586970</updated>
       <workItem from="1570625588110" duration="1006000" />
+      <workItem from="1573416338880" duration="41000" />
     </task>
     <servers />
   </component>
@@ -66,7 +82,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>

@@ -6,6 +6,8 @@ server-gold/
 
 # environment file
 .env
+.idea/
+
 
 # Logs
 logs
