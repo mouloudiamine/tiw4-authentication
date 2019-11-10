@@ -10,15 +10,16 @@ const db = require('../models/queries');
 bluebird.promisifyAll(redis);
 
 // client for redis database
-const host = process.env.REDIS_HOST || '192.168.76.222';
+const host = process.env.REDIS_HOST || '127.0.0.1';
 const port = process.env.REDIS_PASS || 6379;
 const client = redis.createClient(port, host);
+
+const response = { title: 'TIW4 -- LOGON' };
 
 // jwt and refresh token secret keys
 // the keys must have a size > used algorithm size
 const jwtTokenSecret = process.env.SECRET_KEY || 'secretpassword';
-const refreshTokenSecret =
-  process.env.REFRESH_SECRET || 'refreshsecretpassword';
+const refreshTokenSecret = process.env.REFRESH_SECRET || 'refreshsecretpassword';
 
 // JWT expiry time and refresh Token expiry time
 const jwtExpirySeconds = 60; // 1 min
@@ -27,16 +28,18 @@ const refreshTokenLifetime = 24 * 60 * 60; // 24h
 // call postgres to verify request's information
 // if OK, creates a jwt and stores it in a cookie, 401 otherwise
 async function authenticateUser(req, res, next) {
-  const login = req.body.username;
+  const { login } = req.body;
   const pwd = sha(req.body.password);
-  const response = { title: 'TIW4 -- LOGON' };
+  const userAgent = req.headers['user-agent'];
 
   debug(`authenticate_user(): attempt from "${login}" with password "${pwd}"`);
+  debug(`user agent is : ${userAgent}`);
   try {
-    const passwordJsonFromDB = JSON.stringify(
-      await db.getPasswordByUsername(login)
-    );
+
+    const passwordJsonFromDB = JSON.stringify(await db.getPasswordByUsername(login));
+    debug(`password json from db : ${passwordJsonFromDB}`);
     if (!passwordJsonFromDB) {
+      // next(createError(401, 'Invalid login/password'));
       response.loginError = true;
       res.render('login', response);
       return;
@@ -44,43 +47,46 @@ async function authenticateUser(req, res, next) {
 
     const passwordFromDB = JSON.parse(passwordJsonFromDB).password;
     const ok = bcrypt.compareSync(pwd, passwordFromDB);
-
+    debug(`password from db : ${passwordFromDB}`);
+    debug(`pwd : ${pwd}`);
+    debug(` ok : ${ok}`);
     // const ok = await db.checkUser(login, pwd);
 
     if (!ok) {
       response.loginError = true;
       res.render('login', response);
-      return;
+    } else {
+      // Create a new token
+      const token = jwt.sign({ sub: login }, jwtTokenSecret, {
+        algorithm: 'HS256',
+        expiresIn: jwtExpirySeconds
+      });
+      // Create a new refreshToken
+      const refreshToken = jwt.sign(
+        { sub: login, agent: userAgent },
+        refreshTokenSecret,
+        { algorithm: 'HS256', expiresIn: refreshTokenLifetime }
+      );
+
+      // Add the jwt into a cookie for further reuse
+      // see https://www.npmjs.com/package/cookie
+      res.cookie('token', token, {
+        // secure: true,
+        sameSite: true,
+        httpOnly: true,
+        maxAge: jwtExpirySeconds * 1000 * 2
+      });
+
+      // Add refresh token to the cookie
+      res.cookie('refreshToken', refreshToken, {
+        // secure: true,
+        sameSite: true,
+        httpOnly: true,
+        maxAge: refreshTokenLifetime * 1000 * 2
+      });
+      debug(`authenticate_user(): "${login}" logged in ("${token}")`);
+      next();
     }
-    // Create a new token
-    const token = jwt.sign({ sub: login }, jwtTokenSecret, {
-      algorithm: 'HS256',
-      expiresIn: jwtExpirySeconds
-    });
-    // Create a new refreshToken
-    const refreshToken = jwt.sign({ sub: login }, refreshTokenSecret, {
-      algorithm: 'HS256',
-      expiresIn: refreshTokenLifetime
-    });
-
-    // Add the jwt into a cookie for further reuse
-    // see https://www.npmjs.com/package/cookie
-    res.cookie('token', token, {
-      // secure: true,
-      sameSite: true,
-      httpOnly: true,
-      maxAge: jwtExpirySeconds * 1000 * 2
-    });
-
-    // Add refresh token to the cookie
-    res.cookie('refreshToken', refreshToken, {
-      // secure: true,
-      sameSite: true,
-      httpOnly: true,
-      maxAge: refreshTokenLifetime * 1000 * 2
-    });
-    debug(`authenticate_user(): "${login}" logged in ("${token}")`);
-    next();
   } catch (e) {
     next(createError(500, e));
   }
@@ -128,7 +134,7 @@ function checkUser(req, res, next) {
 // if it is, create new access token
 // else the user need to login again
 function renewToken(req, res, next) {
-  const { refreshToken } = req.cookies;
+  const { refreshToken} = req.cookies;
 
   debug(`renew_token(): checking refresh token before renewing jwt`);
 
@@ -140,42 +146,36 @@ function renewToken(req, res, next) {
   // check if refresh token is blacklisted
   // if it is, we don't generate new token
   client.get(refreshToken, (err, ret) => {
-    if (ret) {
+    if(ret) {
       debug(`renew_token(): refresh token ${ret} is blacklisted `);
     } else {
-      debug(
-        `renew_token(): generate new token with the provided refresh token ${refreshToken}`
-      );
+      debug(`renew_token(): generate new token with the provided refresh token ${refreshToken}`);
       // verify integrity of refresh token
       const refreshPayload = jwt.verify(refreshToken, refreshTokenSecret);
 
       // verify user agent
       if (refreshPayload.agent !== req.headers['user-agent']) {
-        debug(
-          `renew_token(): user ${refreshPayload.sub} is not using the same machine, you should notify him`
-        );
+        debug(`renew_token(): user ${refreshPayload.sub} is not using the same machine, you should notify him`);
       }
 
       // verify that the token expires soon or already expired before generating new one*
       // if not, no token is generated
-      const payload = jwt.verify(refreshToken, refreshTokenSecret, {
-        ignoreExpiration: true
-      });
+      const payload = jwt.verify(refreshToken, refreshTokenSecret, {ignoreExpiration: true});
       const nowUnixSeconds = Math.round(Number(new Date()) / 1000);
 
-      if (payload && payload.exp && payload.exp - nowUnixSeconds > 30) {
-        // generate new acces token
-        const newToken = jwt.sign({ sub: refreshPayload.sub }, jwtTokenSecret, {
-          algorithm: 'HS256',
-          expiresIn: jwtExpirySeconds
-        });
+      if(payload && payload.exp && (payload.exp - nowUnixSeconds) > 30) {
+          // generate new acces token
+          const newToken = jwt.sign({ sub: refreshPayload.sub }, jwtTokenSecret, {
+            algorithm: 'HS256',
+            expiresIn: jwtExpirySeconds
+          });
 
-        // update cookie
-        res.cookie('token', newToken, {
-          sameSite: true,
-          httpOnly: true,
-          maxAge: jwtExpirySeconds * 1000 * 2
-        });
+          // update cookie
+          res.cookie('token', newToken, {
+            sameSite: true,
+            httpOnly: true,
+            maxAge: jwtExpirySeconds * 1000 * 2
+          });
       }
     }
     next();
@@ -213,14 +213,15 @@ function blacklistToken(req, res, next) {
 // if it is, generate password reset token and send it to user
 function checkEmail(req, _res, next) {
   // recuperer le mail
-  const { email } = req.body;
+  const {email} = req.body;
   debug(`user email ${email}`);
 
   // verify that email exists
   // generate 24h token for password reset
-  req.token = jwt.sign({ ident: email }, jwtTokenSecret, {
-    expiresIn: 24 * 60 * 60
-  });
+  req.token = jwt.sign(
+      {ident: email},
+      jwtTokenSecret,
+      {expiresIn: 24*60*60});
   // send page by email
   next();
 }
@@ -236,11 +237,17 @@ function checkToken(req, _res, next) {
   next();
 }
 
-module.exports = {
-  checkUser,
-  authenticateUser,
-  renewToken,
-  blacklistToken,
-  checkEmail,
-  checkToken
-};
+// reset user password
+function resetPassword(req, _res, next) {
+  const {pass, email} = req.body;
+  debug(`email : ${email} , pass : ${pass}`);
+
+  const salt = 10;
+  const hashedPass = sha(pass);
+  const encrptedPass = bcrypt.hashSync(hashedPass, salt);
+
+  db.updatePassword(email, encrptedPass);
+  next();
+}
+
+module.exports = { checkUser, authenticateUser, renewToken, blacklistToken, checkEmail, checkToken, resetPassword};

@@ -8,7 +8,7 @@ router.get('/', checkUser);
 router.get('/', blacklistToken);
 
 router.get('/', function loginHandler(_req, res, _next) {
-  res.redirect('/');
+    res.redirect('/');
 });
 
 module.exports = router;
