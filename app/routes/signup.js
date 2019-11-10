@@ -3,7 +3,7 @@ const createError = require('http-errors');
 const db = require('../models/queries');
 const mailer = require ('nodemailer');
 const fetch = require("node-fetch");
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 
 const router = express.Router();
