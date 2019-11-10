@@ -37,6 +37,68 @@ async function checkUser(login, pwd) {
   return result.rowCount === 1;
 }
 
+async function checkUserNameExistance(login){
+  debug(`checkUsername("${login}"`);
+  const result = await pool.query(
+    'SELECT  FROM users WHERE username=$1; ',
+    [login]
+  );
+  return result.rowCount === 1;
+}
+
+async function checkMailExistance(email){
+  debug(`checkMail("${email}"`);
+  const result = await pool.query(
+    'SELECT  FROM users WHERE email=$1; ',
+    [email]
+  );
+  return result.rowCount === 1;
+}
+
+async function getId(user,mail){
+  debug(`get userid`);
+  const result = await pool.query(
+    "SELECT userid FROM users WHERE username=$1 and email=$2",
+    [user,mail]
+  );
+  return result;
+}
+
+async function createTempUser(code,userid){
+  debug(`Create Temp User`);
+  const result = await pool.query(
+    "INSERT INTO userstemp(userid,cryptedcode) values($1,$2)",
+    [userid,code]
+  );
+  return result;
+}
+
+async function getTempUserId(cryptedcode){
+  debug("Get Temp user Id")
+  const result = await pool.query(
+    "SELECT userid FROM userstemp WHERE cryptedcode=$1",
+    [cryptedcode]
+  );
+  return result.rows[0].userid;
+}
+
+async function deleteTempUser(userid){
+  debug("Delete temp user")
+  await pool.query(
+    "DELETE FROM userstemp where userid=$1",
+    [userid]
+  );
+}
+
+async function confirmUser(userid){
+  debug("Confirm user")
+  await pool.query(
+    "UPDATE users set verified=true where userid=$1",
+    [userid]
+  );
+}
+
+module.exports = { getUsers, checkUser, addUser, checkUserNameExistance, checkMailExistance,createTempUser,getId,getTempUserId,deleteTempUser,confirmUser};
 async function getPasswordByUsername(username) {
   const result = await pool.query(
       'SELECT password FROM users WHERE Username=$1; ',
@@ -45,4 +107,4 @@ async function getPasswordByUsername(username) {
   return result.rows[0];
 }
 
-module.exports = { getUsers, checkUser, addUser, getPasswordByUsername};
+module.exports = { getUsers, checkUser, addUser, checkUserNameExistance, checkMailExistance,createTempUser,getId,getTempUserId,deleteTempUser,confirmUser, getPasswordByUsername};

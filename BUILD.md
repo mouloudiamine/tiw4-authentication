@@ -32,13 +32,14 @@ CREATE TABLE users (
   userid integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   username TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
-  password varchar(8) NOT NULL
+  password varchar NOT NULL,
+  verified boolean default false
 );
 
-INSERT INTO users(username, email, password) VALUES ('superadmin','mevin.kitnick@hotmail.com','iloveu');
-INSERT INTO users(username, email, password) VALUES ('sandygeorge','sandy.george@hotmail.com','zuley03');
-INSERT INTO users(username, email, password) VALUES ('griffonpress','griffonpress@gmail.com','Skylar7');
-INSERT INTO users(username, email, password) VALUES ('politis','politis@hotmail.com','derby5');
+INSERT INTO users(username, email, password) VALUES ('superadmin','mevin.kitnick@hotmail.com','iloveu',true);
+INSERT INTO users(username, email, password) VALUES ('sandygeorge','sandy.george@hotmail.com','zuley03',true);
+INSERT INTO users(username, email, password) VALUES ('griffonpress','griffonpress@gmail.com','Skylar7',false);
+INSERT INTO users(username, email, password) VALUES ('politis','politis@hotmail.com','derby5',false);
 ```
 
 Sur l'applicatif NodeJS

@@ -4,5 +4,22 @@ DB_USER=tiw4-auth
 DB_PASS=tiw4-auth
 DB_DATABASE=tiw4-auth
 
-PORT=3000
+CAPTCHA_SECRET=6LftuMEUAAAAACd-JI-PX3qcU0_9IfDMPkH9RNXM
+
+MAILER_HOST =smtp.gmail.com
+MAILER_PORT =465
+MAILER_USER =walidaiss71@gmail.com
+
+MAIL_NAME=TIW4-application
+
+CLIENT_ID =304962762378-9s8nogq660ug0ovd9ipp5qvqebgln3u5.apps.googleusercontent.com
+CLIENT_SECRET =QmjAO0jCqGViVxcnlfLE-OGv
+
+REFRESH_TOKEN =1//04vObjkghiPaNCgYIARAAGAQSNwF-L9Irf0iEFn0lsS6tU0WNkWXi_95MGQC3OSXnau5i-2pfMLQWyBBMaJgawxdGNPqkugcrXZQ
+
+NODE_TLS_REJECT_UNAUTHORIZED='0'
+
+set DEBUG=app
+
+PORT=3001
 NODE_ENV=development

@@ -13,6 +13,8 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+//use body-parser
+app.use(bodyP.json({type:"application/json"}));
 // desactiver l'entete x-powered-by
 // bon pratiques express
 app.disable('x-powered-by');
