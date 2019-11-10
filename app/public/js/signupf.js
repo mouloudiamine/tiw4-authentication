@@ -116,7 +116,7 @@ function createObject(ids) {
 }
 
 function createErrDiv(msg, parent, id, cl = 'errorDiv') {
-  $(`#${parent}`).after(`<div class="${cl}" id="${id}">${msg}</div>`);
+  $(`#${parent}`).after(`<div class="${cl} alert alert-danger" id="${id}">${msg}</div>`);
 }
 
 function deleteErrDiv(id) {

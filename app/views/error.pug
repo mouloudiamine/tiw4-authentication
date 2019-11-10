@@ -1,10 +1,14 @@
 extends layout
 
 block content
-    h1 Error #{status}
-    h2 #{message}
+    include head
 
-    if error
-      pre #{error.stack}
-
-    a(href="/") Back to home
+    .container
+        .row.justify-content-center
+            .col-6.text-center
+                h1.bg-danger.text-white Error #{status}
+                h3 #{message}
+        .row.justify-content-center
+            .col-6.text-center
+                form(method='GET' action='/')
+                    button.btn.btn-primary(type='submit') Back to home
