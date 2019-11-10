@@ -13,9 +13,10 @@ router.get('/', function signupHandler(_req, res, _next) {
   res.render('signup', { title: 'TIW4 -- LOGON' });
 });
 
-router.get('/confirm/:code', async function signupHandler(req, res, next) {
+router.get('/confirm', async function signupHandler(req, res, next) {
+  const { code } = req.query;
   try {
-    const userid = await db.getTempUserId(req.params.code);
+    const userid = await db.getTempUserId(code);
     if (userid !== undefined) {
       await db.confirmUser(userid);
       await db.deleteTempUser(userid);
@@ -92,13 +93,15 @@ router.post('/', async function signupHandler(req, res, next) {
       const code = await generateRandomeCode();
       sendMail({ mail: maillower, code }).catch(() => {
         console.log("Erreur de lors de l'envoie du mail");
-        res.redirect('/signup');
+        // res.redirect('/signup');
       });
       await db.addUser(loginlower, maillower, encrptedPass);
       const usr = await db.getId(loginlower, maillower);
       const { userid } = usr.rows[0];
       await db.createTempUser(code, userid);
-      res.redirect('/');
+      // res.redirect('/');
+
+      res.render('verifmail', { token: code});
     }
   } catch (e) {
     next(createError(500, e));
@@ -125,16 +128,18 @@ function generateRandomeCode() {
 
 function sendMail(params) {
   return new Promise((resolve, reject) => {
-    const link = `localhost:${process.env.PORT}/signup/confirm/${params.code}`;
+    const link = `${process.env.SERVER_IP}:${process.env.PORT}/signup/confirm/${params.code}`;
     const transport = mailer.createTransport({
       host: process.env.MAILER_HOST,
-      port: process.env.MAILER_PORT,
-      auth: {
-        type: 'OAuth2',
-        user: process.env.MAILER_USER,
-        clientId: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-        refreshToken: process.env.REFRESH_TOKEN
+      port: process.env.MAILER_PORT
+    });
+
+    // verify connection configuration
+    transport.verify(function(error, _success) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Server is ready to take our messages");
       }
     });
 
@@ -149,6 +154,8 @@ function sendMail(params) {
     };
 
     transport.sendMail(message, (err, info) => {
+      console.log(`err ${err}`);
+      console.log(`info ${info}`);
       if (err) reject();
       else resolve();
     });

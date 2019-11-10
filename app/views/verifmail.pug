@@ -1,0 +1,13 @@
+extends layout
+
+block content
+
+    .main.container
+        .row
+            .col-md-6.col-md-offset-3
+                h2.display-6.m-b-2 verification d'email simulation
+
+                form(method='GET' action='/signup/confirm')
+                    p Appuyez pour confirmer votre adresse mail
+                    input#code.form-control(type='hidden', value=token name='code')
+                    button.btn.btn-primary(type='submit') Confirm Email
