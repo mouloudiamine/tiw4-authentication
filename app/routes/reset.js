@@ -1,20 +1,19 @@
 const express = require('express');
-const { checkToken } = require('./authenticate');
+const {checkToken, resetPassword} = require("./authenticate");
 
 const router = express.Router();
 
 router.get('/', checkToken);
 
 router.get('/', function loginHandler(req, res, _next) {
-  res.render('reset', { tk: req.body.token });
+    const { mail } = req.query;
+    res.render('reset', {mel: mail});
 });
 
-router.post('/', checkToken);
-
-// router.post('/', resetPassword);
+router.post('/', resetPassword);
 
 router.post('/', function loginHandler(req, res, _next) {
-  res.redirect('/login');
+    res.redirect('/login');
 });
 
 module.exports = router;
