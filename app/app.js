@@ -4,6 +4,7 @@ const createError = require('http-errors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const morgan = require('morgan');
+const bodyP = require("body-parser");
 
 // read environnement variable in the ./.env file
 require('dotenv').config();
@@ -13,7 +14,7 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-//use body-parser
+// use body-parser
 app.use(bodyP.json({type:"application/json"}));
 // desactiver l'entete x-powered-by
 // bon pratiques express

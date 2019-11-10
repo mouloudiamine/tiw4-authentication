@@ -28,7 +28,9 @@
     "pug": "^2.0.4",
     "redis": "^2.8.0",
     "querystring": "^0.2.0",
-    "xoauth2": "^1.2.0"
+    "xoauth2": "^1.2.0",
+    "nodemailer": "latest",
+    "node-fetch": "latest"
   },
   "devDependencies": {
     "eslint": "^6.5.1",
