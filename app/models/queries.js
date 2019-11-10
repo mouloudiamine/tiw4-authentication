@@ -27,6 +27,15 @@ async function addUser(username, email, pwd) {
   return result;
 }
 
+async function updatePassword(email, pwd) {
+  debug(`updatePassword("${email}", "${pwd}")`);
+  const result = await pool.query(
+      'UPDATE users SET password=$1 WHERE email=$2;',
+      [pwd, email]
+  );
+  return result;
+}
+
 // Boolean query to check a user/password
 async function checkUser(login, pwd) {
   debug(`checkUser("${login}", "${pwd}")`);
@@ -106,4 +115,7 @@ async function getPasswordByUsername(username) {
   return result.rows[0];
 }
 
-module.exports = { getUsers, checkUser, addUser, checkUserNameExistance, checkMailExistance,createTempUser,getId,getTempUserId,deleteTempUser,confirmUser, getPasswordByUsername};
+module.exports = { getUsers, checkUser, addUser,
+  checkUserNameExistance, checkMailExistance,createTempUser,
+  getId,getTempUserId,deleteTempUser,confirmUser,
+  getPasswordByUsername, updatePassword};

@@ -231,4 +231,17 @@ function checkToken(req, _res, next) {
   next();
 }
 
-module.exports = { checkUser, authenticateUser, renewToken, blacklistToken, checkEmail, checkToken };
+// reset user password
+function resetPassword(req, _res, next) {
+  const {pass, email} = req.body;
+  debug(`email : ${email} , pass : ${pass}`);
+
+  const salt = 10;
+  const hashedPass = sha(pass);
+  const encrptedPass = bcrypt.hashSync(hashedPass, salt);
+
+  db.updatePassword(email, encrptedPass);
+  next();
+}
+
+module.exports = { checkUser, authenticateUser, renewToken, blacklistToken, checkEmail, checkToken, resetPassword};

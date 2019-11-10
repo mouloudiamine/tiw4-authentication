@@ -9,11 +9,7 @@ block content
 
         form(method='POST' action='/reset')
           div.form-group
-            p token: #{tk}
-          div.form-group
             label(for='pass') Password:
-            input#pass.form-control(type='password' name='password')
-          div.form-group
-            label(for='repass') Retype Password:
-            input#repass.form-control(type='password' name='repassword')
+            input#pass.form-control(type='password' name='pass')
+            input#email.form-control(type='hidden' value=mel name='email')
           button.btn.btn-primary(type='submit') Reset

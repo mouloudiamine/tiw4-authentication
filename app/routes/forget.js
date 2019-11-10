@@ -10,7 +10,8 @@ router.get('/', function loginHandler(_req, res, _next) {
 router.post('/', checkEmail);
 
 router.post('/', function loginHandler(req, res, _next) {
-    res.render('email', {tk: req.token});
+    const {email} = req.body;
+    res.render('email', {tk: req.token, mail: email});
 });
 
 module.exports = router;
