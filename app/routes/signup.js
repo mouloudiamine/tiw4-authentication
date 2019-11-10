@@ -64,13 +64,13 @@ router.post('/', async function signupHandler(req, res, next) {
     let errors = await verifications(req);
 
     //Si il ya des erreurs on réaffiche la page signup avec les erreurs.
-    if(Object.keys(errors).length!=0)
+    if(Object.keys(errors).length!=0){
       res.render("signup",errors);
+    }
     else {
       //ECHAPER LES CARTACTeres speciaux (specialchars)
       // HTML ENTITIES
       //TODO ENCRYPT PASSWORD
-      
       let code= await generateRandomeCode();
       sendMail({mail:maillower,code:code}).catch(()=>{
         console.log("Erreur de lors de l'envoie du mail");
@@ -176,11 +176,6 @@ async function verifications(req){
   let captchavide=captcha.length==0;
   if (captchavide) errors.captchaVide=true;
 
-  //Si le captcha n'est pas vide on vérifie avec le serveur
-  if(!captchavide){
-    let success=await verifyCaptcha(captcha);
-    if(!success) errors.errCaptcha= true;
-  }
   //Vérfier que le username n'est pas vide
   let logvide=loginlower.length==0;
   if(logvide) errors.logvide=true;
