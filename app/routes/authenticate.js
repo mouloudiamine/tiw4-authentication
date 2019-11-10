@@ -14,6 +14,8 @@ const host = process.env.REDIS_HOST || '127.0.0.1';
 const port = process.env.REDIS_PASS || 6379;
 const client = redis.createClient(port, host);
 
+const response = { title: 'TIW4 -- LOGON' };
+
 // jwt and refresh token secret keys
 // the keys must have a size > used algorithm size
 const jwtTokenSecret = process.env.SECRET_KEY || 'secretpassword';
@@ -37,7 +39,9 @@ async function authenticateUser(req, res, next) {
     const passwordJsonFromDB = JSON.stringify(await db.getPasswordByUsername(login));
     debug(`password json from db : ${passwordJsonFromDB}`);
     if (!passwordJsonFromDB) {
-      next(createError(401, 'Invalid login/password'));
+      // next(createError(401, 'Invalid login/password'));
+      response.loginError = true;
+      res.render('login', response);
       return;
     }
 
@@ -48,8 +52,10 @@ async function authenticateUser(req, res, next) {
     debug(` ok : ${ok}`);
     // const ok = await db.checkUser(login, pwd);
 
-    if (!ok) next(createError(401, 'Invalid login/password'));
-    else {
+    if (!ok) {
+      response.loginError = true;
+      res.render('login', response);
+    } else {
       // Create a new token
       const token = jwt.sign({ sub: login }, jwtTokenSecret, {
         algorithm: 'HS256',
