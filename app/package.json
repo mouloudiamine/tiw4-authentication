@@ -24,13 +24,14 @@
     "js-sha512": "^0.8.0",
     "jsonwebtoken": "^8.5.1",
     "morgan": "~1.9.1",
+    "node-fetch": "latest",
+    "nodemailer": "latest",
     "pg": "^7.12.1",
     "pug": "^2.0.4",
-    "redis": "^2.8.0",
     "querystring": "^0.2.0",
-    "xoauth2": "^1.2.0",
-    "nodemailer": "latest",
-    "node-fetch": "latest"
+    "redis": "^2.8.0",
+    "request": "^2.88.0",
+    "xoauth2": "^1.2.0"
   },
   "devDependencies": {
     "eslint": "^6.5.1",

@@ -98,7 +98,6 @@ async function confirmUser(userid){
   );
 }
 
-module.exports = { getUsers, checkUser, addUser, checkUserNameExistance, checkMailExistance,createTempUser,getId,getTempUserId,deleteTempUser,confirmUser};
 async function getPasswordByUsername(username) {
   const result = await pool.query(
       'SELECT password FROM users WHERE Username=$1; ',

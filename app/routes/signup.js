@@ -5,6 +5,7 @@ const createError = require('http-errors');
 const mailer = require('nodemailer');
 const fetch = require('node-fetch');
 const db = require('../models/queries');
+const request = require('request');
 
 const router = express.Router();
 
@@ -183,11 +184,15 @@ async function checkEmailExist(mail) {
 async function verifyCaptcha(captcha) {
   const captchaSecret = process.env.CAPTCHA_SECRET;
   const verifyURL = `https://www.google.com/recaptcha/api/siteverify?secret=${captchaSecret}&response=${captcha}`;
-  return await fetch(verifyURL)
-    .then((res) => res.json())
-    .then((res) => {
-      return res.success;
-    });
+
+  return request.get(verifyURL, (error, res, body) => {
+    if (error) {
+      console.error(error);
+      return false;
+    }
+    console.log(`captcha response : ${body}`);
+    return body.success;
+  });
 }
 
 async function verifications(req) {
