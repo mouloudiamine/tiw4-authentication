@@ -1,38 +1,45 @@
 extends layout
 
+
+
 block content
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   .main.container
-    .row
-      .col-md-6.col-md-offset-3
-        h1= title
-        p Welcome to #{title}
+    include head
 
     .row
       .col-md-6.col-md-offset-3
         h1.display-4.m-b-2 Sign Up
 
         // register form, courtesy of https://teamtreehouse.com/library/creating-a-registration-form-with-pug-jade-2
-        form#subscribeForm
+        form(id="signup" method='POST' action='/signup')
           div.form-group
             label(for='username') Username:
             input#username.form-control(type='text', placeholder='your_login' name='username')
-            span#usernameError.text-danger
+            unless usernameerror == undefined
+              div#loginexist.alert.alert-danger.errorDiv L'utilisateur #{usernameerror} existe déjà
+            unless logvide == undefined
+              div#loginvide.alert.alert-danger.errorDiv Le login ne doit pas être vide
           div.form-group
             label(for='email') Email:
-            input#email.form-control(type='email', placeholder='name@email.com'  name='email')
-            span#emailError.text-danger
+            input#email.form-control(type='email', placeholder='name@email.com' name='email')
+            unless mailerror == undefined
+              div#emailexist.alert.alert-danger.errorDiv L'email existe déjà dans la base de données
+            unless mailnotconform == undefined
+              div#emailnconforme.alert.alert-danger.errorDiv L'email n'est pas conforme
           div.form-group
             label(for='pw') Password:
-            input#pw.form-control(type='password'  name='password')
-            span#passwordError.text-danger
+            input#pw.form-control(type='password' name='password')
+            unless passnotconform == undefined
+              div#mdpnconform.alert.alert-danger.errorDiv Le mot de passe doit contenir aux moins 8 caractères, un caractère majuscule
           div.form-group
             label(for='pw2') Confirm Password:
             input#pw2.form-control(type='password' name='confirmPassword')
-            span#confirmPasswordError.text-danger
+            unless errconfpass == undefined
+              div#mdpcrpdpas.alert.alert-danger.errorDiv Les mots de passes ne se correspondent pas
           div.form-group
-            div#captcha.g-recaptcha(data-sitekey='6Lc-C8EUAAAAAFDsErO5K5-Wxs-5xAPlTDuwm7XU')
-            span#captchaError.text-danger
-          input.btn.btn-primary(type='submit' value='Submit')
-          
-  script(src='https://www.google.com/recaptcha/api.js' async='' defer='')      
-  script(src='js/signup.js')          
+            div#captcha.g-recaptcha(data-sitekey='6LcD6cEUAAAAADJ52NuAcF-vSC-LFFyYPSH-Yca5')
+          button#validate.btn.btn-primary(type='submit') Sign up
+
+  
+  script(src='js/signupf.js').

@@ -1,6 +1,8 @@
 extends layout
 
 block content
+  include head
+
   h2 Current list of users
 
   ul
@@ -8,3 +10,5 @@ block content
     li #{user.username} (#{user.email})
   else
     li There are no user
+
+  script(src="js/refresh.js")
