@@ -1,14 +1,25 @@
 extends layout
 
 block content
-    include head
-
-    .container
-        .row.justify-content-center
-            .col-6.text-center
-                h1.bg-danger.text-white Error #{status}
-                h3 #{message}
-        .row.justify-content-center
-            .col-6.text-center
-                form(method='GET' action='/')
-                    button.btn.btn-primary(type='submit') Back to home
+    .main
+        include header
+        .container
+            .row
+                .col-md-12
+                    .error-template
+                        h1
+                            | Oops!
+                        h2
+                            | #{status} #{message}
+                        .error-details
+                            | Sorry, an error has occured, Requested page not found!
+                            br
+                            br
+                            br
+                        .error-actions
+                            a.btn.btn-primary.btn-lg(href='/')
+                                span.glyphicon.glyphicon-home
+                                |                         Take Me Home
+                            a.btn.btn-default.btn-lg(href="mailto:dm_mouloudi@esi.dz")
+                                span.glyphicon.glyphicon-envelope
+                                |  Contact Support

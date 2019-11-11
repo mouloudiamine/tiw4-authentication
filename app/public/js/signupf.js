@@ -20,7 +20,7 @@ window.onload = () => {
     const mdpnconf = await createErr(
       'pw',
       checkPassword,
-      'Le mot de passe doit contenir aux moins 8 caractères, un caractère majuscule',
+      'le mot de passe ne doit contenir que des caractères alphanumériques [majuscule caractère minuscule chiffres ]',
       'mdpnconform'
     );
     if (mdpnconf != false) errs.mdpnconf = mdpnconf;
@@ -28,7 +28,7 @@ window.onload = () => {
     const mailconf = await createErr(
       'email',
       checkEmail,
-      "L'email n'est pas conforme",
+      "erreur format de l' adresse email",
       'emailnconforme'
     );
     if (mdpnconf != false) errs.mailconf = mailconf;
@@ -36,7 +36,7 @@ window.onload = () => {
     const logvide = await createErr(
       'username',
       checkEmptyField,
-      'Le login ne doit pas être vide',
+      'Veuillez entrer le nom d\'utilisateur',
       'loginvide'
     );
     if (logvide != false) errs.logvide = logvide;

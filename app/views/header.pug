@@ -1,4 +1,20 @@
 .row
+    .col-12
+        nav.navbar.navbar-expand-sm.bg-dark.navbar-dark
+            ul.navbar-nav
+                li.nav-item.disabled.ml-auto
+                    a.nav-link.disabled.text-white(href='/')
+                        h4= title
+                li.nav-item.ml-auto
+                    a.nav-link(href="login") Login
+                li.nav-item.ml-auto
+                    a.nav-link(href="signup") Signup
+                li.nav-item.ml-auto
+                    a.nav-link(href="restricted") Private area
+                li.nav-item.ml-auto
+                    a.nav-link(href="users") List of users
+                li.nav-item.ml-auto
+                    a.nav-link(href="logout") Logout
+
     .col-12.bg-primary.p-2.mb-4
         a.text-white(href='/')
-            h4= title

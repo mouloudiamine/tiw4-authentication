@@ -1,15 +1,99 @@
-extends layout
+doctype html
+head
+    meta(charset='UTF-8')
+    title Title
+    style.
+        .container {
+            position: relative;
+        }
 
-block content
+        .circle {
+            position: absolute;
+            top: 12%;
+            left: 48%;
+            opacity: 0;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #dadae4;
+            z-index: -1;
+            transform: scale(0);
+            animation: circle 1s linear;
+        }
 
-    .main.container
-        include head
+        img {
+            display: block;
+            margin: 40px auto 0;
+            width: 100px;
+            z-index: 3;
+        }
+
+        p {
+            text-align: center;
+            margin: 0;
+            font-size: 28px;
+            color: #717171;
+            font-family: monospace;
+        }
+
+        .a {
+            margin: 0;
+            position: relative;
+            margin: 15px auto;
+            width: 500px;
+            height: 5px;
+            background: #f1f1f1;
+            border: 1px solid #ccc;
+            z-index: 1;
+        }
+
+        .b {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0px;
+            height: 5px;
+            background: #fd3737;
+            transaction: 1s all ease-in-out;
+            animation: progress 5s ease-out infinite;
+        }
+
+        @keyframes progress {
+            0% {
+                width: 0px;
+            }
+            100% {
+                width: 500px;
+            }
+        }
+
+        @keyframes circle {
+            0% {
+                opacity: 0;
+            }
+            80% {
+                opacity: .3;
+                background: #ccc;
+                transform: scale(13);
+            }
+            100% {
+                opacity: 1;
+                background: #eee;
+                transform: scale(14);
+            }
+        }
+    p ceci représente un mail envoyé a l'utilisateur qui souhaite réinitialiser son mot de passe
+    .container
+        .row
+            .circle
+            img(src='https://image.flaticon.com/icons/svg/281/281769.svg')
+            p Gmail Simulateur
+            .a
+                .b
         .row
             .col-md-6.col-md-offset-3
-                h2.display-6.m-b-2 Reset password email simulation
-
                 form(method='GET' action='/reset')
                     p to reset password please click the button
                     input#token.form-control(type='hidden', value=tk name='token')
                     input#mail.form-control(type='hidden', value=mail name='mail')
-                    button.btn.btn-primary(type='submit') Reset Password
+                    button.btn.btn-primary(type='submit', style="margin-left:700px; margin-top:30px") Reset Password

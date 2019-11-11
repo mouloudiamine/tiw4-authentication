@@ -1,15 +1,19 @@
 extends layout
 
 block content
- 
-  .main.container
-    include head
-    .row
-      .col-md-6
-      h2 Our impressive features
-      ul
-        li: a(href="login") Login
-        li: a(href="signup") Signup
-        li: a(href="restricted") Private area (restricted)
-        li: a(href="users") List of users (restricted)
-        li: a(href="logout") Logout
+
+  .main
+    include header
+    .container
+      .row
+        .starter-template
+          h1 TP TIW4-AUTH
+          p.lead
+            | Le TP consiste en la sécurisation du serveur et de l'application LOGON, il est ainsi composé de deux parties :
+            |
+            br
+            | * partie A on s'intéresse au niveau système et en particulier aux front nginx sur lequel il faut mettre en place HTTPS/TLS;
+            br
+            | * partie B on s'intéresse à l'applicatif : le serveur d'application Node.js, la base de données PostgreSQL et surtout l'application elle même.
+            |
+
