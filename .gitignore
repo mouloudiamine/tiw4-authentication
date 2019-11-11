@@ -7,7 +7,9 @@ server-gold/
 # environment file
 .env
 .idea/
-
+.vscode/
+.idea
+.vscode
 
 # Logs
 logs
