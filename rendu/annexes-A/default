@@ -1,0 +1,31 @@
+# Load balancing / server declaration
+upstream nodejs {
+   zone nodejs 64k;
+   server localhost:3000;
+}
+# HTTP front for node
+
+server {
+   listen      80;
+   server_name  _;
+   return 301 https://192.168.76.211/;
+   location / {
+     include /etc/nginx/conf.d/proxy_set_header.inc;
+     proxy_pass http://nodejs;
+   }
+}
+
+
+server {
+   listen       443 ssl;
+   server_name  _;
+   ssl_password_file /etc/nginx/ssl/pass;
+   ssl_certificate /etc/nginx/ssl/certificatSigne.crt;
+   ssl_certificate_key /etc/nginx/ssl/Privatekey.key;
+   add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+   location / {
+     include /etc/nginx/conf.d/proxy_set_header.inc;
+     proxy_pass http://nodejs;
+   }
+}
