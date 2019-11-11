@@ -1,0 +1,33 @@
+
+# Load balancing / server declaration
+upstream nodejs {
+  zone nodejs 64k;
+  server localhost:3000;
+}
+# HTTP front for node
+server {
+  listen       443 ssl;
+  server_name  _;
+  ssl_password_file /etc/nginx/ssl/global.pass;
+  ssl_certificate /etc/nginx/ssl/serverBoumouSigne.crt;
+  ssl_certificate_key /etc/nginx/ssl/serverBoumou.key;
+  location / {
+     include /etc/nginx/conf.d/proxy_set_header.inc;
+     proxy_pass http://nodejs;
+  }
+}
+
+server {
+  listen   80;
+  server_name  _;
+  return 301 https://192.168.76.222/;
+  location / {
+     include /etc/nginx/conf.d/proxy_set_header.inc;
+     proxy_pass http://nodejs;
+  }
+
+
+}
+
+
+
